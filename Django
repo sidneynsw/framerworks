@@ -1,0 +1,61 @@
+# myapp.py
+
+# Importe os módulos necessários do Django
+from django.http import HttpResponse
+from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
+from django.core.wsgi import get_wsgi_application
+from django.shortcuts import render
+from django.db import models
+
+# Configurações do Django
+settings.configure(
+    DEBUG=True,
+    SECRET_KEY='your-secret-key',
+    ROOT_URLCONF=__name__,
+    MIDDLEWARE_CLASSES=(
+        'django.middleware.common.CommonMiddleware',
+        'django.middleware.csrf.CsrfViewMiddleware',
+        'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    ),
+    TEMPLATES=[
+        {
+            'BACKEND': 'django.template.backends.django.DjangoTemplates',
+            'APP_DIRS': True,
+        },
+    ],
+    DATABASES={
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': 'mydatabase',
+        }
+    },
+    STATIC_URL='/static/',
+)
+
+# Defina um modelo simples
+class Task(models.Model):
+    title = models.CharField(max_length=200)
+    completed = models.BooleanField(default=False)
+
+# Crie uma view simples
+def task_list(request):
+    tasks = Task.objects.all()
+    return render(request, 'task_list.html', {'tasks': tasks})
+
+# Crie uma URL para a view
+urlpatterns = [path('', task_list, name='task_list')]
+
+# Configuração para servir arquivos estáticos localmente
+if settings.DEBUG:
+    urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+# Execute a aplicação WSGI do Django
+application = get_wsgi_application()
+
+if __name__ == "__main__":
+    from django.core.management import execute_from_command_line
+    execute_from_command_line()
+
+#Você cria um arquivo HTML na pasta onde foi salvo o seu código para executá-lo.
